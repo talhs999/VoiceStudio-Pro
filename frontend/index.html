@@ -1,0 +1,1125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>VoiceStudio Pro — ElevenLabs Clone with Gemini AI & Emotions</title>
+<style>
+:root{--bg:#0a0a0f;--bg2:#111118;--bg3:#181824;--bg4:#222234;--border:#28283c;--accent:#f97316;--accent2:#fb923c;--text:#e2e8f0;--text2:#94a3b8;--text3:#64748b;--success:#22c55e;--danger:#ef4444;--purple:#a855f7;--blue:#3b82f6;--pink:#ec4899;--gold:#eab308;}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{background:var(--bg);color:var(--text);font-family:'Segoe UI',system-ui,sans-serif;display:flex;height:100vh;overflow:hidden;}
+
+/* SIDEBAR */
+.sidebar{width:240px;min-width:240px;background:var(--bg2);border-right:1px solid var(--border);display:flex;flex-direction:column;overflow-y:auto;}
+.logo{padding:18px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px;}
+.logo-icon{width:34px;height:34px;background:linear-gradient(135deg,var(--accent),var(--purple));border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:17px;flex-shrink:0;}
+.logo-text{font-size:14px;font-weight:800;letter-spacing:-0.3px;}
+.logo-badge{font-size:9px;background:var(--accent);color:#fff;padding:2px 7px;border-radius:4px;margin-left:auto;font-weight:700;}
+.nav-sec{padding:10px 8px 2px;}
+.nav-lbl{font-size:9.5px;color:var(--text3);font-weight:700;letter-spacing:.9px;text-transform:uppercase;padding:0 8px 7px;}
+.nav-item{display:flex;align-items:center;gap:9px;padding:9px 10px;border-radius:8px;cursor:pointer;font-size:13px;color:var(--text2);transition:all .15s;margin-bottom:2px;}
+.nav-item:hover{background:var(--bg3);color:var(--text);}
+.nav-item.active{background:rgba(249,115,22,.14);color:var(--accent);font-weight:600;}
+.nav-item .ic{width:18px;text-align:center;font-size:14.5px;}
+.nav-badge{margin-left:auto;background:var(--accent);color:#fff;font-size:9px;padding:2px 6px;border-radius:9px;font-weight:700;}
+.nav-new{margin-left:auto;font-size:9px;background:var(--purple);color:#fff;padding:2px 6px;border-radius:4px;font-weight:700;}
+
+/* Gemini status card in sidebar */
+.gemini-card{margin:8px 10px;padding:10px 12px;background:var(--bg3);border:1px solid var(--border);border-radius:10px;cursor:pointer;transition:all .2s;}
+.gemini-card:hover{border-color:var(--purple);}
+.gc-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:4px;}
+.gc-title{font-size:11.5px;font-weight:700;display:flex;align-items:center;gap:5px;}
+.gc-status{font-size:9px;padding:2px 6px;border-radius:4px;font-weight:700;}
+.gc-status.connected{background:rgba(34,197,94,.15);color:var(--success);border:1px solid var(--success);}
+.gc-status.disconnected{background:rgba(234,179,8,.15);color:var(--gold);border:1px solid var(--gold);}
+.gc-desc{font-size:10px;color:var(--text3);}
+
+.sidebar-bottom{margin-top:auto;padding:10px;border-top:1px solid var(--border);}
+.user-card{display:flex;align-items:center;gap:9px;padding:8px;border-radius:8px;cursor:pointer;}
+.user-card:hover{background:var(--bg3);}
+.user-av{width:30px;height:30px;background:linear-gradient(135deg,var(--purple),var(--blue));border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;}
+.user-name{font-size:12px;font-weight:600;}
+.user-plan{font-size:10px;color:var(--accent);font-weight:600;}
+
+/* MAIN */
+.main{flex:1;display:flex;flex-direction:column;overflow:hidden;}
+.topbar{padding:10px 22px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:12px;background:var(--bg2);min-height:54px;}
+.topbar h1{font-size:15px;font-weight:700;}
+.topbar-right{margin-left:auto;display:flex;gap:8px;align-items:center;}
+.chip{background:var(--bg3);border:1px solid var(--border);border-radius:7px;padding:5px 11px;font-size:11.5px;display:flex;align-items:center;gap:6px;}
+.chip strong{color:var(--accent);}
+.key-btn{background:linear-gradient(135deg,var(--purple),#7c3aed);color:#fff;border:none;padding:6px 12px;border-radius:7px;cursor:pointer;font-size:11.5px;font-weight:700;display:flex;align-items:center;gap:5px;transition:all .2s;}
+.key-btn:hover{transform:translateY(-1px);box-shadow:0 4px 14px rgba(168,85,247,.35);}
+
+/* PAGES */
+.page{display:none;flex:1;overflow:hidden;}
+.page.active{display:flex;flex-direction:column;}
+
+/* ===== TTS PAGE ===== */
+.tts-layout{display:flex;flex:1;overflow:hidden;}
+.tts-editor{flex:1;padding:18px;overflow-y:auto;display:flex;flex-direction:column;gap:14px;}
+.tts-panel{width:290px;border-left:1px solid var(--border);padding:14px;overflow-y:auto;display:flex;flex-direction:column;gap:11px;}
+
+.voice-box{border:1.5px solid var(--border);border-radius:11px;overflow:hidden;cursor:pointer;transition:border-color .2s;}
+.voice-box:hover{border-color:var(--accent);}
+.voice-box-hd{padding:11px 13px;display:flex;align-items:center;gap:10px;background:var(--bg3);}
+.v-av{width:38px;height:38px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;background:linear-gradient(135deg,var(--accent),var(--purple));}
+.v-name{font-size:13.5px;font-weight:700;}
+.v-meta{font-size:10.5px;color:var(--text3);margin-top:1px;}
+.chg-btn{margin-left:auto;font-size:11px;color:var(--accent);border:1px solid var(--accent);padding:4px 10px;border-radius:6px;background:transparent;cursor:pointer;}
+.chg-btn:hover{background:rgba(249,115,22,.1);}
+
+/* Emotion Selector Grid */
+.emo-title{font-size:11.5px;font-weight:700;color:var(--text2);margin-bottom:6px;display:flex;justify-content:space-between;align-items:center;}
+.emo-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-bottom:8px;}
+.emo-btn{background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:7px 5px;font-size:11px;cursor:pointer;color:var(--text2);text-align:center;transition:all .15s;}
+.emo-btn:hover{border-color:var(--accent);color:var(--text);}
+.emo-btn.sel{background:rgba(249,115,22,.15);border-color:var(--accent);color:var(--accent);font-weight:700;}
+
+.tx-wrap{position:relative;}
+.tx{width:100%;min-height:180px;background:var(--bg3);border:1.5px solid var(--border);border-radius:11px;padding:14px;color:var(--text);font-size:14.5px;line-height:1.65;resize:vertical;outline:none;transition:border-color .2s;font-family:inherit;}
+.tx:focus{border-color:var(--accent);}
+.tx::placeholder{color:var(--text3);}
+.cc{position:absolute;bottom:11px;right:13px;font-size:10.5px;color:var(--text3);}
+
+.gen-btn{background:linear-gradient(135deg,var(--accent),#ea580c);border:none;color:#fff;padding:13px 22px;border-radius:10px;font-size:14px;font-weight:700;cursor:pointer;transition:all .2s;display:flex;align-items:center;gap:8px;justify-content:center;}
+.gen-btn:hover{transform:translateY(-1px);box-shadow:0 8px 24px rgba(249,115,22,.35);}
+.gen-btn:disabled{opacity:.6;cursor:not-allowed;transform:none;}
+@keyframes spin{to{transform:rotate(360deg);}}
+.gen-btn.loading .sp{display:inline;animation:spin .8s linear infinite;}
+.sp{display:none;}
+
+/* Player */
+.player{background:var(--bg3);border:1.5px solid var(--border);border-radius:11px;padding:14px;display:none;}
+.player.on{display:block;}
+.player-top{display:flex;align-items:center;gap:11px;margin-bottom:11px;}
+.pl-btn{width:38px;height:38px;border-radius:50%;background:var(--accent);border:none;cursor:pointer;color:#fff;font-size:15px;display:flex;align-items:center;justify-content:center;transition:all .2s;}
+.pl-btn:hover{background:var(--accent2);transform:scale(1.05);}
+.pl-info{flex:1;}
+.pl-title{font-size:12.5px;font-weight:600;}
+.pl-meta{font-size:10.5px;color:var(--text3);}
+.pl-acts{display:flex;gap:7px;}
+.ib{background:var(--bg);border:1px solid var(--border);color:var(--text2);padding:6px 11px;border-radius:7px;cursor:pointer;font-size:11.5px;transition:all .2s;}
+.ib:hover{border-color:var(--accent);color:var(--accent);}
+.wf{height:44px;background:var(--bg);border-radius:7px;display:flex;align-items:center;padding:0 10px;gap:2px;overflow:hidden;}
+.wb{background:var(--accent);border-radius:1px;width:3px;opacity:.4;animation:wv 1.2s ease-in-out infinite;}
+@keyframes wv{0%,100%{height:6px;opacity:.35;}50%{height:28px;opacity:1;}}
+audio{width:100%;margin-top:10px;border-radius:7px;}
+
+/* Settings */
+.sgrp{background:var(--bg3);border:1px solid var(--border);border-radius:9px;padding:12px;}
+.slbl{font-size:11.5px;font-weight:600;color:var(--text2);margin-bottom:8px;display:flex;justify-content:space-between;}
+.slbl span{color:var(--accent);font-weight:700;}
+input[type=range]{width:100%;accent-color:var(--accent);cursor:pointer;}
+.note{font-size:10px;color:var(--text3);margin-top:5px;}
+
+/* Quick prompts */
+.qp{background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:8px 11px;cursor:pointer;font-size:11.5px;transition:all .15s;display:flex;align-items:center;gap:7px;margin-bottom:5px;}
+.qp:hover{border-color:var(--accent);color:var(--accent);}
+
+/* ===== AI ASSISTANT PAGE ===== */
+.ai-layout{display:flex;flex:1;overflow:hidden;}
+.ai-chat{flex:1;display:flex;flex-direction:column;overflow:hidden;}
+.ai-msgs{flex:1;overflow-y:auto;padding:18px;display:flex;flex-direction:column;gap:13px;}
+.msg{max-width:85%;display:flex;flex-direction:column;gap:4px;animation:fadeIn .3s ease;}
+@keyframes fadeIn{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:none;}}
+.msg.user{align-self:flex-end;}
+.msg.bot{align-self:flex-start;}
+.msg-bubble{padding:12px 15px;border-radius:12px;font-size:13.5px;line-height:1.55;}
+.msg.user .msg-bubble{background:linear-gradient(135deg,var(--accent),#ea580c);color:#fff;border-radius:12px 12px 2px 12px;}
+.msg.bot .msg-bubble{background:var(--bg3);border:1px solid var(--border);border-radius:12px 12px 12px 2px;}
+.msg-time{font-size:10px;color:var(--text3);}
+.msg.user .msg-time{text-align:right;}
+
+/* AI Result Box */
+.ai-result{background:var(--bg3);border:1px solid var(--border);border-radius:11px;padding:13px;margin-top:4px;box-shadow:0 4px 16px rgba(0,0,0,.25);}
+.ai-script-label{font-size:10px;color:var(--text3);text-transform:uppercase;font-weight:700;letter-spacing:.6px;margin-bottom:4px;}
+.ai-urdu-script{background:var(--bg);border:1.5px solid rgba(249,115,22,.4);border-radius:8px;padding:11px 14px;font-size:17px;line-height:1.8;color:#fff;direction:rtl;text-align:right;font-family:'Jameel Noori Nastaleeq','Urdu Typesetting','Segoe UI',sans-serif;margin-bottom:10px;}
+.ai-non-urdu-script{background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:10px 12px;font-size:13.5px;color:var(--text);margin-bottom:10px;}
+.ai-result-row{display:flex;align-items:center;gap:10px;margin-bottom:10px;}
+.ai-voice-info{flex:1;}
+.ai-voice-name{font-size:13px;font-weight:700;}
+.ai-voice-meta{font-size:10.5px;color:var(--text3);}
+.ai-play{background:var(--accent);border:none;color:#fff;padding:8px 16px;border-radius:8px;cursor:pointer;font-size:12px;font-weight:700;transition:all .2s;display:flex;align-items:center;gap:5px;}
+.ai-play:hover{background:var(--accent2);}
+.ai-play:disabled{opacity:.6;cursor:not-allowed;}
+.ai-tags{display:flex;gap:5px;flex-wrap:wrap;}
+.ai-tag{background:var(--bg);border:1px solid var(--border);font-size:10px;padding:3px 8px;border-radius:5px;color:var(--text2);}
+.ai-tag.gemini{border-color:var(--purple);color:var(--purple);font-weight:700;}
+
+.ai-input-wrap{padding:14px 18px;border-top:1px solid var(--border);display:flex;gap:10px;background:var(--bg2);}
+.ai-input{flex:1;background:var(--bg3);border:1.5px solid var(--border);border-radius:11px;padding:12px 15px;color:var(--text);font-size:13.5px;outline:none;font-family:inherit;resize:none;min-height:50px;max-height:140px;transition:border-color .2s;}
+.ai-input:focus{border-color:var(--accent);}
+.ai-input::placeholder{color:var(--text3);}
+.ai-send{background:linear-gradient(135deg,var(--accent),#ea580c);border:none;color:#fff;padding:12px 20px;border-radius:11px;cursor:pointer;font-size:14px;font-weight:700;transition:all .2s;white-space:nowrap;align-self:flex-end;}
+.ai-send:hover{transform:translateY(-1px);box-shadow:0 6px 20px rgba(249,115,22,.35);}
+.ai-send:disabled{opacity:.6;cursor:not-allowed;transform:none;}
+
+.ai-panel{width:270px;border-left:1px solid var(--border);padding:14px;overflow-y:auto;display:flex;flex-direction:column;gap:11px;}
+.ai-hint{background:var(--bg3);border:1px solid var(--border);border-radius:9px;padding:11px;}
+.ai-hint-title{font-size:11.5px;font-weight:700;margin-bottom:8px;color:var(--accent);}
+.ai-hint-ex{font-size:11px;color:var(--text2);padding:6px 9px;background:var(--bg);border-radius:6px;margin-bottom:5px;cursor:pointer;transition:all .15s;border:1px solid var(--border);}
+.ai-hint-ex:hover{border-color:var(--accent);color:var(--text);}
+
+/* ===== VOICES PAGE ===== */
+.voices-pg{flex:1;overflow-y:auto;padding:18px;}
+.vsearch{width:100%;background:var(--bg3);border:1.5px solid var(--border);border-radius:9px;padding:11px 15px;color:var(--text);font-size:13.5px;outline:none;margin-bottom:14px;}
+.vsearch:focus{border-color:var(--accent);}
+.vfil{display:flex;gap:7px;margin-bottom:16px;flex-wrap:wrap;}
+.fil{background:var(--bg3);border:1px solid var(--border);color:var(--text2);padding:6px 13px;border-radius:18px;cursor:pointer;font-size:11.5px;transition:all .2s;}
+.fil:hover,.fil.active{background:rgba(249,115,22,.1);border-color:var(--accent);color:var(--accent);}
+.vgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:12px;}
+.vc{background:var(--bg3);border:1.5px solid var(--border);border-radius:11px;padding:14px;cursor:pointer;transition:all .2s;position:relative;}
+.vc:hover{border-color:var(--accent);transform:translateY(-2px);box-shadow:0 6px 20px rgba(0,0,0,.3);}
+.vc.sel{border-color:var(--accent);background:rgba(249,115,22,.05);}
+.vc-chk{position:absolute;top:11px;right:11px;width:19px;height:19px;background:var(--accent);border-radius:50%;display:none;align-items:center;justify-content:center;font-size:10px;}
+.vc.sel .vc-chk{display:flex;}
+.vc-hd{display:flex;align-items:center;gap:10px;margin-bottom:10px;}
+.vc-av{width:42px;height:42px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:19px;flex-shrink:0;}
+.vc-nm{font-size:13.5px;font-weight:700;}
+.vc-lg{font-size:10.5px;color:var(--text3);margin-top:1px;}
+.vc-tags{display:flex;gap:4px;flex-wrap:wrap;margin-bottom:10px;}
+.vc-tag{background:var(--bg);border:1px solid var(--border);color:var(--text3);font-size:9.5px;padding:2px 7px;border-radius:4px;}
+.vc-acts{display:flex;gap:7px;}
+.vc-prev{flex:1;background:transparent;border:1px solid var(--border);color:var(--text2);padding:7px;border-radius:7px;cursor:pointer;font-size:11.5px;transition:all .2s;display:flex;align-items:center;justify-content:center;gap:4px;}
+.vc-prev:hover{border-color:var(--accent);color:var(--accent);}
+.vc-use{flex:1;background:var(--accent);border:none;color:#fff;padding:7px;border-radius:7px;cursor:pointer;font-size:11.5px;font-weight:600;transition:all .2s;}
+.vc-use:hover{background:var(--accent2);}
+
+/* ===== HISTORY PAGE ===== */
+.hist-pg{flex:1;overflow-y:auto;padding:18px;}
+.hist-list{display:flex;flex-direction:column;gap:7px;}
+.hist-item{background:var(--bg3);border:1px solid var(--border);border-radius:9px;padding:12px 14px;display:flex;align-items:center;gap:12px;transition:all .15s;}
+.hist-pl{width:34px;height:34px;border-radius:50%;background:var(--bg);border:1px solid var(--border);color:var(--text2);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:13px;transition:all .2s;flex-shrink:0;}
+.hist-pl:hover{background:var(--accent);border-color:var(--accent);color:#fff;}
+.hist-inf{flex:1;min-width:0;}
+.hist-tx{font-size:12.5px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.hist-mt{font-size:10.5px;color:var(--text3);}
+.hist-acts{display:flex;gap:6px;}
+.hb{background:transparent;border:1px solid var(--border);color:var(--text3);padding:5px 9px;border-radius:6px;cursor:pointer;font-size:11px;transition:all .2s;}
+.hb:hover{border-color:var(--accent);color:var(--accent);}
+.hb.del:hover{border-color:var(--danger);color:var(--danger);}
+
+/* MODALS */
+.modal-ov{display:none;position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:100;align-items:center;justify-content:center;}
+.modal-ov.open{display:flex;}
+.modal{background:var(--bg2);border:1px solid var(--border);border-radius:14px;width:660px;max-height:82vh;overflow:hidden;display:flex;flex-direction:column;}
+.modal-hd{padding:16px 18px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;}
+.modal-ttl{font-size:15px;font-weight:700;}
+.modal-cl{background:transparent;border:none;color:var(--text3);font-size:19px;cursor:pointer;}
+.modal-cl:hover{color:var(--text);}
+.modal-srch{padding:12px 18px;border-bottom:1px solid var(--border);}
+.modal-srch input{width:100%;background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:9px 13px;color:var(--text);font-size:13px;outline:none;}
+.modal-srch input:focus{border-color:var(--accent);}
+.modal-vlist{padding:14px 18px;overflow-y:auto;display:grid;grid-template-columns:1fr 1fr;gap:9px;}
+.mv{background:var(--bg3);border:1px solid var(--border);border-radius:9px;padding:11px;cursor:pointer;transition:all .15s;display:flex;align-items:center;gap:9px;}
+.mv:hover,.mv.sel{border-color:var(--accent);background:rgba(249,115,22,.07);}
+.mv-av{width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0;}
+.mv-nm{font-size:12.5px;font-weight:600;}
+.mv-mt{font-size:10px;color:var(--text3);}
+
+/* Gemini Key Modal */
+.key-input-box{padding:20px;display:flex;flex-direction:column;gap:12px;}
+.key-inp{width:100%;background:var(--bg3);border:1.5px solid var(--border);border-radius:9px;padding:12px 14px;color:var(--text);font-size:14px;outline:none;font-family:monospace;}
+.key-inp:focus{border-color:var(--purple);}
+.key-acts{display:flex;gap:10px;}
+.key-save-btn{background:var(--purple);color:#fff;border:none;padding:10px 18px;border-radius:8px;font-weight:700;cursor:pointer;font-size:13px;}
+.key-test-btn{background:var(--bg3);color:var(--text);border:1px solid var(--border);padding:10px 16px;border-radius:8px;cursor:pointer;font-size:13px;}
+
+/* TOAST */
+.toast-c{position:fixed;bottom:18px;right:18px;z-index:200;display:flex;flex-direction:column;gap:7px;}
+.toast{background:var(--bg2);border:1px solid var(--border);border-radius:9px;padding:11px 14px;font-size:12.5px;display:flex;align-items:center;gap:9px;min-width:240px;animation:slideIn .3s ease;box-shadow:0 8px 24px rgba(0,0,0,.4);}
+.toast.success{border-left:3px solid var(--success);}
+.toast.error{border-left:3px solid var(--danger);}
+.toast.info{border-left:3px solid var(--blue);}
+@keyframes slideIn{from{transform:translateX(100%);opacity:0;}to{transform:translateX(0);opacity:1;}}
+
+.empty{text-align:center;padding:50px 20px;color:var(--text3);}
+.empty-ic{font-size:44px;margin-bottom:14px;}
+.empty-ttl{font-size:15px;font-weight:600;color:var(--text2);margin-bottom:7px;}
+
+::-webkit-scrollbar{width:4px;}
+::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px;}
+::-webkit-scrollbar-thumb:hover{background:var(--text3);}
+</style>
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<nav class="sidebar">
+  <div class="logo">
+    <div class="logo-icon">🎙️</div>
+    <span class="logo-text">VoiceStudio</span>
+    <span class="logo-badge">PRO</span>
+  </div>
+
+  <div class="nav-sec">
+    <div class="nav-lbl">Create</div>
+    <div class="nav-item active" onclick="showPage('tts',this)">
+      <span class="ic">✍️</span> Text to Speech
+    </div>
+    <div class="nav-item" onclick="showPage('ai',this)">
+      <span class="ic">🤖</span> AI Assistant
+      <span class="nav-new">GEMINI</span>
+    </div>
+  </div>
+
+  <div class="nav-sec">
+    <div class="nav-lbl">Manage</div>
+    <div class="nav-item" onclick="showPage('voices',this)">
+      <span class="ic">👥</span> Voice Library
+    </div>
+    <div class="nav-item" onclick="showPage('history',this)">
+      <span class="ic">🕐</span> History
+      <span class="nav-badge" id="hbadge">0</span>
+    </div>
+  </div>
+
+  <!-- Gemini Key status card -->
+  <div class="gemini-card" onclick="openKeyModal()">
+    <div class="gc-top">
+      <div class="gc-title">🧠 Gemini AI</div>
+      <span class="gc-status disconnected" id="gc-badge">Set Key</span>
+    </div>
+    <div class="gc-desc" id="gc-desc">Click to configure free Gemini Key</div>
+  </div>
+
+  <div class="sidebar-bottom">
+    <div class="user-card" onclick="openKeyModal()">
+      <div class="user-av">U</div>
+      <div>
+        <div class="user-name">Local Studio</div>
+        <div class="user-plan" id="plan-lbl">Free Unlimited</div>
+      </div>
+    </div>
+  </div>
+</nav>
+
+<!-- MAIN -->
+<div class="main">
+
+  <!-- ========== TTS PAGE ========== -->
+  <div class="page active" id="page-tts">
+    <div class="topbar">
+      <h1>✍️ Text to Speech</h1>
+      <div class="topbar-right">
+        <button class="key-btn" onclick="openKeyModal()">
+          <span>🔑</span> <span id="top-key-text">Gemini Key</span>
+        </button>
+        <div class="chip">Voice: <strong id="sel-chip">Uzma</strong></div>
+      </div>
+    </div>
+    <div class="tts-layout">
+      <div class="tts-editor">
+        <!-- Voice Picker -->
+        <div class="voice-box" onclick="openModal()">
+          <div class="voice-box-hd">
+            <div class="v-av" id="sel-av">🇵🇰</div>
+            <div>
+              <div class="v-name" id="sel-name">Uzma</div>
+              <div class="v-meta" id="sel-meta">Pakistani Urdu · Female · Warm & Melodic</div>
+            </div>
+            <button class="chg-btn">Change Voice</button>
+          </div>
+        </div>
+
+        <!-- Emotion Selector -->
+        <div>
+          <div class="emo-title">
+            <span>🎭 Select Emotion / Tone</span>
+            <span style="font-size:10px; color:var(--accent);" id="emo-desc">Natural Tone</span>
+          </div>
+          <div class="emo-grid" id="emo-grid">
+            <button class="emo-btn sel" onclick="selectEmo('normal',this)">🎭 Normal</button>
+            <button class="emo-btn" onclick="selectEmo('happy',this)">😊 Happy</button>
+            <button class="emo-btn" onclick="selectEmo('sad',this)">😢 Sad</button>
+            <button class="emo-btn" onclick="selectEmo('angry',this)">🔥 Angry</button>
+            <button class="emo-btn" onclick="selectEmo('whisper',this)">🤫 Whisper</button>
+            <button class="emo-btn" onclick="selectEmo('excited',this)">⚡ Excited</button>
+            <button class="emo-btn" onclick="selectEmo('calm',this)">🧘 Calm</button>
+            <button class="emo-btn" onclick="selectEmo('news',this)">🎙️ News</button>
+            <button class="emo-btn" onclick="selectEmo('story',this)">📖 Story</button>
+          </div>
+        </div>
+
+        <!-- Text Input -->
+        <div class="tx-wrap">
+          <textarea class="tx" id="tts-tx" placeholder="Type text here... 
+
+Urdu Script (Best Quality):
+السلام علیکم! ہمارے چینل پر خوش آمدید۔ ویڈیو کو لائک اور سبسکرائب کریں۔
+
+Or Roman Urdu (Auto converted):
+Aap sab ka bohat bohat shukriya!" maxlength="5000"></textarea>
+          <div class="cc"><span id="cc">0</span>/5000</div>
+        </div>
+
+        <!-- Generate button -->
+        <button class="gen-btn" id="genbtn" onclick="generateTTS()">
+          <span class="sp">⟳</span>
+          <span id="genlbl">🎙️ Generate Speech</span>
+        </button>
+
+        <!-- Player -->
+        <div class="player" id="player">
+          <div class="player-top">
+            <button class="pl-btn" id="plbtn" onclick="togglePlay()">▶</button>
+            <div class="pl-info">
+              <div class="pl-title" id="pltitle">Generated Audio</div>
+              <div class="pl-meta" id="plmeta">Ready</div>
+            </div>
+            <div class="pl-acts">
+              <button class="ib" onclick="dlAudio()">⬇ Download MP3</button>
+            </div>
+          </div>
+          <div class="wf" id="wf"></div>
+          <audio id="ap" onplay="onPl()" onpause="onPa()" onended="onEd()"></audio>
+        </div>
+      </div>
+
+      <!-- Settings Panel -->
+      <div class="tts-panel">
+        <div style="font-size:12.5px;font-weight:700;margin-bottom:2px;">⚙️ Voice Adjustments</div>
+        <div class="sgrp">
+          <div class="slbl">Speed <span id="spd-v">1.0</span>x</div>
+          <input type="range" id="spd" min="0.5" max="2.0" step="0.05" value="1.0" oninput="document.getElementById('spd-v').textContent=parseFloat(this.value).toFixed(2)">
+        </div>
+        <div class="sgrp">
+          <div class="slbl">Pitch Adjustment <span id="pitch-lbl">Default</span></div>
+          <div class="note" id="pitch-note">Automatically tuned by chosen Emotion</div>
+        </div>
+
+        <div style="font-size:12.5px;font-weight:700;margin-top:6px;margin-bottom:4px;">⚡ Emotional Presets</div>
+        <div class="qp" onclick="setQ('urdu_sad')">😢 Emotional / Sad Urdu</div>
+        <div class="qp" onclick="setQ('urdu_happy')">😊 Cheerful / Happy Urdu</div>
+        <div class="qp" onclick="setQ('urdu_news')">🎙️ Urdu News Anchor</div>
+        <div class="qp" onclick="setQ('hindi_happy')">🙏 Cheerful Hindi Greeting</div>
+        <div class="qp" onclick="setQ('eng_news')">📰 English Breaking News</div>
+        <div class="qp" onclick="setQ('arabic')">🇸🇦 Arabic Formal</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========== AI AGENT PAGE ========== -->
+  <div class="page" id="page-ai">
+    <div class="topbar">
+      <h1>🤖 AI Voice Agent (Conversational Partner)</h1>
+      <div class="topbar-right">
+        <label style="display:flex;align-items:center;gap:6px;font-size:11.5px;cursor:pointer;background:var(--bg3);border:1px solid var(--border);padding:5px 10px;border-radius:7px;">
+          <input type="checkbox" id="auto-speak-toggle" checked style="accent-color:var(--accent);cursor:pointer;">
+          <span>🔊 Auto-Speak</span>
+        </label>
+        <button class="ib" onclick="clearAgentChat()" title="Clear Chat History">🗑 Clear Chat</button>
+        <button class="key-btn" onclick="openKeyModal()">
+          <span>🔑</span> <span id="top-key-text2">Configure Gemini Key</span>
+        </button>
+      </div>
+    </div>
+    <div class="ai-layout">
+      <div class="ai-chat">
+        <div class="ai-msgs" id="ai-msgs">
+          <!-- Welcome message -->
+          <div class="msg bot">
+            <div class="msg-bubble">
+              👋 <strong>Assalam o Alaikum! Main aapka Conversational Voice AI Agent hoon.</strong><br><br>
+              Main sirf awaz generate nahi karta, balkay aapke sath <strong>mukammal dosti aur baat</strong> bhi karta hoon!<br><br>
+              💬 <strong>Aap mujh se kya karwa sakte hain?</strong><br>
+              • Mere sath kisi bhi topic par Roman Urdu ya English mein baatein karein.<br>
+              • YouTube video script, kahani, shayari ya dialogue likhwain.<br>
+              • Mujhe bolein <em>"Mujhe ye bolo"</em> ya <em>"Awaz banao"</em> — main script likh kar foran bol kar sunaunga!<br><br>
+              <em>Neeche mic button 🎤 daba kar bolain ya text type karein!</em>
+            </div>
+            <div class="msg-time">AI Voice Agent • Online</div>
+          </div>
+        </div>
+
+        <!-- Conversational Quick Action Chips -->
+        <div style="padding:6px 14px;background:var(--bg2);display:flex;gap:6px;overflow-x:auto;border-top:1px solid var(--border);">
+          <div class="qp" style="margin:0;white-space:nowrap;" onclick="setAgentMsg('Assalam o Alaikum! Kese ho aap?')">👋 Salam Greet</div>
+          <div class="qp" style="margin:0;white-space:nowrap;" onclick="setAgentMsg('Mujhe ek YouTube video ke liye energetic Urdu intro bana kar bolo')">🚀 YouTube Intro</div>
+          <div class="qp" style="margin:0;white-space:nowrap;" onclick="setAgentMsg('Urdu mein larki ki bohat dard bhari emotional awaz mein kuch bolo')">😢 Emotional Voice</div>
+          <div class="qp" style="margin:0;white-space:nowrap;" onclick="setAgentMsg('Breaking news bulletin sunao Urdu mein')">🎙️ News Bulletin</div>
+          <div class="qp" style="margin:0;white-space:nowrap;" onclick="setAgentMsg('Ek chota sa lateefa ya funny baat sunao')">😂 Funny Joke</div>
+        </div>
+
+        <div class="ai-input-wrap">
+          <button id="mic-btn" onclick="toggleMic()" title="Voice Input (Mic)" style="background:var(--bg3);border:1.5px solid var(--border);color:var(--text);width:44px;height:44px;border-radius:10px;cursor:pointer;font-size:18px;display:flex;align-items:center;justify-content:center;transition:all .2s;flex-shrink:0;">
+            🎤
+          </button>
+          <textarea class="ai-input" id="ai-inp" placeholder="Type or speak... 'Mujhe YouTube intro bana kar bolo' ya 'Kese ho bhai?'" rows="2" onkeydown="aiKey(event)"></textarea>
+          <button class="ai-send" id="ai-send" onclick="aiSend()">🚀 Send</button>
+        </div>
+      </div>
+
+      <!-- AI Side Panel -->
+      <div class="ai-panel">
+        <div style="font-size:12.5px;font-weight:700;margin-bottom:4px;">💬 Chat Ideas</div>
+        <div class="ai-hint">
+          <div class="ai-hint-title">💡 Baatcheet & Script Ideas</div>
+          <div class="ai-hint-ex" onclick="setAgentMsg('Bhai mujhe ek horror story ka intro voiceover bana kar do')">👻 Horror Story Intro</div>
+          <div class="ai-hint-ex" onclick="setAgentMsg('Aapke paas Urdu ki kitni awazain hain aur sab se best konsi hai?')">❓ Voice Recommendations</div>
+          <div class="ai-hint-ex" onclick="setAgentMsg('Mujhe ek motivational quote Urdu mein bol kar sunao')">🔥 Motivation Voice</div>
+          <div class="ai-hint-ex" onclick="setAgentMsg('Hindi mein swagat speech banao larki ki awaz mein')">🙏 Hindi Welcome</div>
+        </div>
+
+        <div class="ai-hint">
+          <div class="ai-hint-title">⚙️ Agent Status</div>
+          <div style="font-size:11px;color:var(--text2);line-height:1.6;">
+            • Memory: <strong>Multi-turn active</strong><br>
+            • Brain: <strong id="agent-brain-lbl">Gemini 3.1 Pro / 3.8 Flash</strong><br>
+            • Voice Engine: <strong>Edge TTS Neural</strong>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========== VOICES PAGE ========== -->
+  <div class="page" id="page-voices">
+    <div class="topbar">
+      <h1>👥 Voice Library</h1>
+      <div class="topbar-right">
+        <div class="chip">Total: <strong id="vtotal">0</strong> Voices</div>
+      </div>
+    </div>
+    <div class="voices-pg">
+      <input class="vsearch" type="text" placeholder="🔍 Search by name, language, gender..." oninput="filterVc(this.value)">
+      <div class="vfil">
+        <button class="fil active" onclick="setFil('all',this)">🌍 All</button>
+        <button class="fil" onclick="setFil('male',this)">👦 Male</button>
+        <button class="fil" onclick="setFil('female',this)">👧 Female</button>
+        <button class="fil" onclick="setFil('ur',this)">🇵🇰 Urdu</button>
+        <button class="fil" onclick="setFil('hi',this)">🇮🇳 Hindi</button>
+        <button class="fil" onclick="setFil('ar',this)">🇸🇦 Arabic</button>
+        <button class="fil" onclick="setFil('en',this)">🇺🇸 English</button>
+        <button class="fil" onclick="setFil('ps',this)">🇦🇫 Pashto</button>
+      </div>
+      <div class="vgrid" id="vgrid"></div>
+    </div>
+  </div>
+
+  <!-- ========== HISTORY PAGE ========== -->
+  <div class="page" id="page-history">
+    <div class="topbar">
+      <h1>🕐 Generation History</h1>
+      <div class="topbar-right">
+        <button class="ib" style="color:var(--danger);border-color:var(--danger);" onclick="clearAll()">🗑 Clear All</button>
+      </div>
+    </div>
+    <div class="hist-pg">
+      <div class="hist-list" id="hist-list">
+        <div class="empty"><div class="empty-ic">🕐</div><div class="empty-ttl">No history</div>Generate speech to see it here</div>
+      </div>
+    </div>
+  </div>
+
+</div><!-- /main -->
+
+<!-- VOICE PICKER MODAL -->
+<div class="modal-ov" id="vmodal">
+  <div class="modal">
+    <div class="modal-hd">
+      <span class="modal-ttl">🎙️ Select Voice</span>
+      <button class="modal-cl" onclick="closeModal()">✕</button>
+    </div>
+    <div class="modal-srch"><input type="text" placeholder="Search voices..." oninput="filterModal(this.value)" id="msrch"></div>
+    <div class="modal-vlist" id="mvlist"></div>
+  </div>
+</div>
+
+<!-- GEMINI API KEY MODAL -->
+<div class="modal-ov" id="keymodal">
+  <div class="modal" style="width:520px;">
+    <div class="modal-hd">
+      <span class="modal-ttl">🔑 Google Gemini AI Key Setup</span>
+      <button class="modal-cl" onclick="closeKeyModal()">✕</button>
+    </div>
+    <div class="key-input-box">
+      <div style="font-size:12.5px; color:var(--text2); line-height:1.5;">
+        Gemini AI key se aapka AI Assistant Roman Urdu ko <strong>100% fluent Urdu script</strong> mein convert karega aur natural human emotions (Happy, Sad, Angry, Whisper) ke saath awaz generate karega.
+      </div>
+      <div>
+        <a href="https://aistudio.google.com/app/apikey" target="_blank" style="color:var(--accent); font-size:12px; text-decoration:none; font-weight:600;">
+          👉 Click here to get a 100% Free Gemini API Key from Google AI Studio
+        </a>
+      </div>
+      <input type="password" class="key-inp" id="key-input" placeholder="Paste your Gemini API key (AIzaSy...)">
+      <div class="key-acts">
+        <button class="key-save-btn" onclick="saveGeminiKey()">💾 Save Key</button>
+        <button class="key-test-btn" onclick="testGeminiKey()">🧪 Test Key</button>
+      </div>
+      <div id="key-test-result" style="font-size:11.5px;"></div>
+    </div>
+  </div>
+</div>
+
+<div class="toast-c" id="toasts"></div>
+
+<script>
+const API='http://localhost:5000/api';
+let voices={}, selVoice='ur-pk-uzma', curEmotion='normal', curBlob=null, curUrl=null, hist=[], filActive='all', hasGemini=false;
+
+// ===== INIT =====
+async function init(){
+  await checkHealth();
+  await loadVoices();
+  await loadHist();
+  buildWaveform();
+  const p = new URLSearchParams(window.location.search).get('page');
+  if(p){
+    const nav = document.querySelector(`.nav-item[onclick*="'${p}'"]`);
+    showPage(p, nav);
+  }
+}
+
+async function checkHealth(){
+  try{
+    const r=await fetch(`${API}/health`);
+    const d=await r.json();
+    hasGemini=d.has_gemini;
+    updateGeminiUI(hasGemini);
+  }catch(e){}
+}
+
+function updateGeminiUI(connected){
+  const badge=document.getElementById('gc-badge');
+  const desc=document.getElementById('gc-desc');
+  const topText=document.getElementById('top-key-text');
+  const topText2=document.getElementById('top-key-text2');
+  const plan=document.getElementById('plan-lbl');
+
+  if(connected){
+    badge.className='gc-status connected'; badge.textContent='Connected 🟢';
+    desc.textContent='Gemini 3.1 Pro / 3.8 Flash active!';
+    if(topText) topText.textContent='Gemini 🟢';
+    if(topText2) topText2.textContent='Gemini 🟢 Active';
+    if(plan) plan.textContent='Gemini AI Unlimited';
+  }else{
+    badge.className='gc-status disconnected'; badge.textContent='Set Key ⚪';
+    desc.textContent='Click to paste free Gemini Key';
+    if(topText) topText.textContent='🔑 Set Gemini Key';
+    if(topText2) topText2.textContent='🔑 Set Gemini Key';
+    if(plan) plan.textContent='Free Unlimited';
+  }
+}
+
+async function loadVoices(){
+  try{
+    const r=await fetch(`${API}/voices`);
+    const list=await r.json();
+    list.forEach(v=>voices[v.voice_id]=v);
+    document.getElementById('vtotal').textContent=list.length;
+    renderGrid(list);
+    renderModal(list);
+    selectVoice('ur-pk-uzma');
+  }catch(e){
+    toast('⚠️ Backend starting... Please refresh in a moment','info');
+  }
+}
+
+async function loadHist(){
+  try{
+    const r=await fetch(`${API}/history`);
+    const d=await r.json();
+    hist=d.history||[];
+    renderHist();
+    document.getElementById('hbadge').textContent=hist.length;
+  }catch(e){}
+}
+
+// ===== PAGES =====
+function showPage(pg,el){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+  document.getElementById('page-'+pg).classList.add('active');
+  if(el) el.classList.add('active');
+  if(pg==='history') loadHist();
+}
+
+// ===== EMOTION SELECTION =====
+const emotionNotes={
+  normal:'Natural balance (0Hz pitch)',
+  happy:'Bright tone (+10Hz pitch, +6% speed)',
+  sad:'Emotional & deep (-9Hz pitch, -12% slow speed)',
+  angry:'Intense & loud (+15Hz pitch, +15% fast speed)',
+  whisper:'Gentle & soft (-6Hz pitch, -25% volume)',
+  excited:'High energy (+18Hz pitch, +20% fast speed)',
+  calm:'Relaxed & smooth (-4Hz pitch)',
+  news:'Authoritative news anchor tone (+2Hz)',
+  story:'Narrative & immersive (-5Hz pitch)'
+};
+
+function selectEmo(emo,el){
+  curEmotion=emo;
+  document.querySelectorAll('.emo-btn').forEach(b=>b.classList.remove('sel'));
+  if(el) el.classList.add('sel');
+  document.getElementById('emo-desc').textContent=emotionNotes[emo]||emo;
+  document.getElementById('pitch-lbl').textContent=emo.toUpperCase();
+}
+
+// ===== TTS GENERATION =====
+document.getElementById('tts-tx').addEventListener('input',function(){document.getElementById('cc').textContent=this.value.length;});
+
+async function generateTTS(){
+  const text=document.getElementById('tts-tx').value.trim();
+  if(!text){toast('Please enter text!','error');return;}
+  const btn=document.getElementById('genbtn');
+  const lbl=document.getElementById('genlbl');
+  btn.classList.add('loading');btn.disabled=true;lbl.textContent='⏳ Generating Voice...';
+
+  try{
+    const res=await fetch(`${API}/text-to-speech/${selVoice}`,{
+      method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({
+        text,
+        emotion: curEmotion,
+        voice_settings:{
+          speed: parseFloat(document.getElementById('spd').value)
+        }
+      })
+    });
+    if(!res.ok){const e=await res.json();throw new Error(e.error||'Failed');}
+    const blob=await res.blob();
+    curBlob=blob; curUrl=URL.createObjectURL(blob);
+    const ap=document.getElementById('ap');
+    ap.src=curUrl;
+    const v=voices[selVoice]||{};
+    document.getElementById('pltitle').textContent=`${v.name||selVoice} (${curEmotion.toUpperCase()}) — "${text.substring(0,40)}..."`;
+    document.getElementById('plmeta').textContent=`${text.length} chars · ${v.locale||''} · ${(v.labels||{}).gender||''}`;
+    document.getElementById('player').classList.add('on');
+    ap.play();
+    toast('✅ Voice Generated!','success');
+    await loadHist();
+  }catch(e){toast('❌ '+e.message,'error');}
+  finally{btn.classList.remove('loading');btn.disabled=false;lbl.textContent='🎙️ Generate Speech';}
+}
+
+function togglePlay(){const ap=document.getElementById('ap');ap.paused?ap.play():ap.pause();}
+function onPl(){document.getElementById('plbtn').textContent='⏸';}
+function onPa(){document.getElementById('plbtn').textContent='▶';}
+function onEd(){document.getElementById('plbtn').textContent='▶';}
+function dlAudio(){if(!curUrl)return;const a=document.createElement('a');a.href=curUrl;a.download=`vs_${selVoice}_${Date.now()}.mp3`;a.click();toast('⬇️ Downloading MP3...','info');}
+
+function buildWaveform(){
+  const wf=document.getElementById('wf');wf.innerHTML='';
+  for(let i=0;i<55;i++){const b=document.createElement('div');b.className='wb';b.style.height=(Math.random()*26+5)+'px';b.style.animationDelay=(Math.random()*1.2)+'s';wf.appendChild(b);}
+}
+
+const qTexts={
+  urdu_sad:`کاش کہ تم ایک بار مڑ کر دیکھ لیتے۔ اب یہ تنہائی اور تمہاری یادیں ہی میرا مقدر ہیں۔`,
+  urdu_happy:`آپ سب کو سالگرہ بہت بہت مبارک ہو! اللہ پاک آپ کو زندگی کی تمام خوشیاں اور کامیابیاں عطا فرمائے۔`,
+  urdu_news:`اسلام آباد سے اہم خبر: محکمہ موسمیات نے ملک بھر میں بارشوں کے نئے سلسلے کی پیشگوئی کر دی ہے۔`,
+  hindi_happy:`नमस्ते! आप सभी का हमारे चैनल पर बहुत-बहुत स्वागत है। आज का दिन आप सभी के लिए मंगलमय हो।`,
+  eng_news:`Breaking news: Scientists have confirmed a historic breakthrough in clean energy production today.`,
+  arabic:`السلام عليكم ورحمة الله وبركاته. أهلاً وسهلاً بكم في قناتنا الرسمية.`
+};
+
+function setQ(t){
+  document.getElementById('tts-tx').value=qTexts[t];
+  document.getElementById('cc').textContent=qTexts[t].length;
+  if(t==='urdu_sad'){ selectVoice('ur-pk-uzma'); selectEmo('sad', document.querySelectorAll('.emo-btn')[2]); }
+  else if(t==='urdu_happy'){ selectVoice('ur-pk-uzma'); selectEmo('happy', document.querySelectorAll('.emo-btn')[1]); }
+  else if(t==='urdu_news'){ selectVoice('ur-pk-asad'); selectEmo('news', document.querySelectorAll('.emo-btn')[7]); }
+  else if(t==='hindi_happy'){ selectVoice('hi-in-swara'); selectEmo('happy', document.querySelectorAll('.emo-btn')[1]); }
+  else if(t==='eng_news'){ selectVoice('en-us-josh'); selectEmo('news', document.querySelectorAll('.emo-btn')[7]); }
+  else if(t==='arabic'){ selectVoice('ar-sa-zariyah'); selectEmo('normal', document.querySelectorAll('.emo-btn')[0]); }
+}
+
+// ===== VOICES =====
+function vcBg(v){return v.labels&&v.labels.gender==='female'?'linear-gradient(135deg,var(--pink),var(--purple))':'linear-gradient(135deg,var(--blue),#4f46e5)';}
+
+function renderGrid(list){
+  document.getElementById('vgrid').innerHTML=list.map(v=>`
+    <div class="vc ${v.voice_id===selVoice?'sel':''}" id="vc-${v.voice_id}" onclick="selectVoice('${v.voice_id}')">
+      <div class="vc-chk">✓</div>
+      <div class="vc-hd">
+        <div class="vc-av" style="background:${vcBg(v)}">${v.flag||'🎤'}</div>
+        <div>
+          <div class="vc-nm">${v.name}</div>
+          <div class="vc-lg">${v.locale||''} · ${(v.labels||{}).gender||''}</div>
+        </div>
+      </div>
+      <div class="vc-tags">
+        <span class="vc-tag">${(v.labels||{}).accent||''}</span>
+        <span class="vc-tag">${(v.labels||{}).description||''}</span>
+        <span class="vc-tag">${(v.labels||{}).use_case||''}</span>
+      </div>
+      <div class="vc-acts">
+        <button class="vc-prev" onclick="event.stopPropagation();previewVoice('${v.voice_id}')">▶ Preview</button>
+        <button class="vc-use" onclick="event.stopPropagation();useVoice('${v.voice_id}')">Use Voice</button>
+      </div>
+    </div>`).join('');
+}
+
+function filterVc(q){
+  let list=Object.values(voices);
+  if(filActive!=='all') list=list.filter(v=>v.labels&&(v.labels.gender===filActive||v.language===filActive));
+  if(q) list=list.filter(v=>v.name.toLowerCase().includes(q.toLowerCase())||((v.locale||'').toLowerCase().includes(q.toLowerCase()))||((v.labels&&v.labels.accent||'').toLowerCase().includes(q.toLowerCase())));
+  renderGrid(list);
+}
+
+function setFil(f,el){
+  filActive=f;
+  document.querySelectorAll('.fil').forEach(b=>b.classList.remove('active'));
+  el.classList.add('active');
+  filterVc(document.querySelector('.vsearch').value);
+}
+
+function selectVoice(id){
+  selVoice=id;
+  const v=voices[id];if(!v)return;
+  document.querySelectorAll('.vc').forEach(c=>c.classList.remove('sel'));
+  const el=document.getElementById('vc-'+id);if(el)el.classList.add('sel');
+  updateSelUI(id);
+  updateModalSel(id);
+}
+
+function updateSelUI(id){
+  const v=voices[id];if(!v)return;
+  document.getElementById('sel-av').textContent=v.flag||'🎤';
+  document.getElementById('sel-name').textContent=v.name;
+  document.getElementById('sel-meta').textContent=`${(v.labels||{}).accent||''} · ${(v.labels||{}).gender||''} · ${(v.labels||{}).description||''}`;
+  document.getElementById('sel-chip').textContent=v.name;
+}
+
+function useVoice(id){selectVoice(id);showPage('tts',document.querySelector('.nav-item'));}
+
+async function previewVoice(id){
+  const v=voices[id];
+  const sampleMap={
+    ur:'خوش آمدید! یہ میری اردو آواز کا نمونہ ہے۔',
+    hi:'नमस्ते! यह मेरी आवाज़ का नमूना है।',
+    ar:'مرحبا بكم! هذا نموذج لصوتي.',
+    default:`Hello! I'm ${v?v.name:''}. Welcome to VoiceStudio Pro!`
+  };
+  const text=sampleMap[v?v.language:'default']||sampleMap.default;
+  toast(`🔊 Previewing ${v?v.name:''}...`,'info');
+  try{
+    const r=await fetch(`${API}/text-to-speech/${id}`,{
+      method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({text,emotion:'normal',voice_settings:{speed:1.0}})
+    });
+    const blob=await r.blob();new Audio(URL.createObjectURL(blob)).play();
+  }catch(e){toast('❌ Preview failed','error');}
+}
+
+// ===== MODAL =====
+function renderModal(list){
+  document.getElementById('mvlist').innerHTML=list.map(v=>`
+    <div class="mv ${v.voice_id===selVoice?'sel':''}" id="mv-${v.voice_id}" onclick="selectVoice('${v.voice_id}');closeModal();">
+      <div class="mv-av" style="background:${vcBg(v)}">${v.flag||'🎤'}</div>
+      <div>
+        <div class="mv-nm">${v.name}</div>
+        <div class="mv-mt">${v.locale||''} · ${(v.labels||{}).gender||''} · ${(v.labels||{}).description||''}</div>
+      </div>
+    </div>`).join('');
+}
+
+function filterModal(q){
+  const list=q?Object.values(voices).filter(v=>v.name.toLowerCase().includes(q.toLowerCase())||((v.locale||'').includes(q))||((v.labels&&v.labels.accent||'').toLowerCase().includes(q.toLowerCase()))):Object.values(voices);
+  renderModal(list);
+}
+function updateModalSel(id){document.querySelectorAll('.mv').forEach(m=>m.classList.remove('sel'));const el=document.getElementById('mv-'+id);if(el)el.classList.add('sel');}
+function openModal(){document.getElementById('vmodal').classList.add('open');document.getElementById('msrch').value='';renderModal(Object.values(voices));}
+function closeModal(){document.getElementById('vmodal').classList.remove('open');}
+document.getElementById('vmodal').addEventListener('click',e=>{if(e.target===document.getElementById('vmodal'))closeModal();});
+
+// ===== GEMINI KEY MODAL =====
+async function openKeyModal(){
+  document.getElementById('keymodal').classList.add('open');
+  try{
+    const r=await fetch(`${API}/settings`);
+    const d=await r.json();
+    if(d.gemini_api_key){ document.getElementById('key-input').value=d.gemini_api_key; }
+  }catch(e){}
+}
+function closeKeyModal(){document.getElementById('keymodal').classList.remove('open');}
+document.getElementById('keymodal').addEventListener('click',e=>{if(e.target===document.getElementById('keymodal'))closeKeyModal();});
+
+async function saveGeminiKey(){
+  const key=document.getElementById('key-input').value.trim();
+  const resDiv=document.getElementById('key-test-result');
+  resDiv.textContent='⏳ Saving...';
+  try{
+    const r=await fetch(`${API}/settings`,{
+      method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({gemini_api_key:key})
+    });
+    const d=await r.json();
+    hasGemini=d.has_gemini;
+    updateGeminiUI(hasGemini);
+    resDiv.style.color='var(--success)';
+    resDiv.textContent='✅ Saved successfully!';
+    toast('✅ Gemini Key Saved!','success');
+    setTimeout(()=>closeKeyModal(),1000);
+  }catch(e){
+    resDiv.style.color='var(--danger)'; resDiv.textContent='❌ Save failed: '+e.message;
+  }
+}
+
+async function testGeminiKey(){
+  const key=document.getElementById('key-input').value.trim();
+  const resDiv=document.getElementById('key-test-result');
+  if(!key){resDiv.style.color='var(--gold)'; resDiv.textContent='Please paste your key first!'; return;}
+  resDiv.style.color='var(--text2)'; resDiv.textContent='⏳ Testing key with Google servers...';
+  try{
+    const r=await fetch(`${API}/gemini/test`,{
+      method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({gemini_api_key:key})
+    });
+    const d=await r.json();
+    if(d.valid){
+      resDiv.style.color='var(--success)'; resDiv.textContent='✅ Key is 100% Valid & Working!';
+      toast('✅ Gemini Key Valid!','success');
+    }else{
+      resDiv.style.color='var(--danger)'; resDiv.textContent='❌ Invalid Key: '+(d.error||'Failed');
+    }
+  }catch(e){
+    resDiv.style.color='var(--danger)'; resDiv.textContent='❌ Connection failed: '+e.message;
+  }
+}
+
+// ===== HISTORY =====
+function renderHist(){
+  const c=document.getElementById('hist-list');
+  if(!hist.length){c.innerHTML=`<div class="empty"><div class="empty-ic">🕐</div><div class="empty-ttl">No history</div>Generate speech to see it here</div>`;return;}
+  c.innerHTML=hist.map(h=>`
+    <div class="hist-item">
+      <button class="hist-pl" onclick="playHist('${h.history_item_id}')">▶</button>
+      <div class="hist-inf">
+        <div class="hist-tx">${h.text}</div>
+        <div class="hist-mt">${h.voice_name} · ${h.emotion||'normal'} · ${new Date(h.date_unix*1000).toLocaleString()}</div>
+      </div>
+      <div class="hist-acts">
+        <button class="hb" onclick="dlHist('${h.history_item_id}')">⬇</button>
+        <button class="hb del" onclick="delHist('${h.history_item_id}')">🗑</button>
+      </div>
+    </div>`).join('');
+}
+async function playHist(id){
+  try{const r=await fetch(`${API}/history/${id}/audio`);const b=await r.blob();new Audio(URL.createObjectURL(b)).play();toast('▶ Playing...','info');}catch(e){toast('❌ Failed','error');}
+}
+async function dlHist(id){
+  const r=await fetch(`${API}/history/${id}/audio`);const b=await r.blob();
+  const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download=`vs_${id}.mp3`;a.click();
+}
+async function delHist(id){
+  await fetch(`${API}/history/${id}`,{method:'DELETE'});
+  hist=hist.filter(h=>h.history_item_id!==id);renderHist();
+  document.getElementById('hbadge').textContent=hist.length;toast('🗑 Deleted','info');
+}
+async function clearAll(){
+  if(!confirm('Delete all history?'))return;
+  for(const h of hist)await fetch(`${API}/history/${h.history_item_id}`,{method:'DELETE'});
+  hist=[];renderHist();document.getElementById('hbadge').textContent=0;toast('🗑 Cleared','info');
+}
+
+// ===== CONVERSATIONAL AI AGENT =====
+let aiLoading=false;
+let agentHistory=[];
+let recognition=null;
+let isRecording=false;
+
+function setAgentMsg(txt){
+  document.getElementById('ai-inp').value=txt;
+  aiSend();
+}
+
+function aiKey(e){
+  if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();aiSend();}
+}
+
+function clearAgentChat(){
+  if(confirm("Clear conversation history with AI Agent?")){
+    agentHistory=[];
+    document.getElementById('ai-msgs').innerHTML=`
+      <div class="msg bot">
+        <div class="msg-bubble">
+          👋 <strong>Chat history cleared!</strong><br>
+          Kahiye dost, ab kis topic par baat karni hai ya konsi voice banani hai?
+        </div>
+        <div class="msg-time">AI Voice Agent • Just now</div>
+      </div>`;
+    toast('🗑 Chat reset','info');
+  }
+}
+
+// Voice input via Web Speech API
+function toggleMic(){
+  const btn=document.getElementById('mic-btn');
+  if(!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)){
+    toast('⚠️ Speech Recognition not supported in this browser. Use Chrome/Edge!','error');
+    return;
+  }
+  if(isRecording){
+    if(recognition) recognition.stop();
+    isRecording=false;
+    btn.style.background='var(--bg3)';
+    btn.style.color='var(--text)';
+    toast('🛑 Mic stopped','info');
+    return;
+  }
+  const SpeechRec = window.SpeechRecognition || window.webkitSpeechRecognition;
+  recognition = new SpeechRec();
+  recognition.lang = 'ur-PK'; // Supports Urdu & Roman Urdu!
+  recognition.continuous = false;
+  recognition.interimResults = false;
+
+  recognition.onstart = function(){
+    isRecording=true;
+    btn.style.background='var(--danger)';
+    btn.style.color='#fff';
+    toast('🎙️ Listening... Bolain aap!', 'info');
+  };
+
+  recognition.onresult = function(event){
+    const transcript = event.results[0][0].transcript;
+    document.getElementById('ai-inp').value = transcript;
+    isRecording=false;
+    btn.style.background='var(--bg3)';
+    btn.style.color='var(--text)';
+    toast(`🎤 Heard: "${transcript}"`, 'success');
+    aiSend();
+  };
+
+  recognition.onerror = function(e){
+    isRecording=false;
+    btn.style.background='var(--bg3)';
+    btn.style.color='var(--text)';
+    toast('⚠️ Mic error: '+e.error, 'error');
+  };
+
+  recognition.onend = function(){
+    isRecording=false;
+    btn.style.background='var(--bg3)';
+    btn.style.color='var(--text)';
+  };
+
+  recognition.start();
+}
+
+async function aiSend(){
+  const inp=document.getElementById('ai-inp');
+  const message=inp.value.trim();
+  if(!message||aiLoading)return;
+  aiLoading=true;
+  inp.value='';
+  document.getElementById('ai-send').disabled=true;
+
+  // Add user message to UI
+  addMsg('user', message);
+  const thinkId='think-'+Date.now();
+  addMsg('bot', hasGemini ? '🧠 AI Agent is thinking and composing voice...' : '⚡ AI Agent is typing...', thinkId);
+
+  try{
+    const r=await fetch(`${API}/agent/chat`,{
+      method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({
+        message,
+        history: agentHistory
+      })
+    });
+    const d=await r.json();
+    document.getElementById(thinkId)?.remove();
+
+    // Update conversation memory
+    agentHistory.push({role: "user", content: message});
+    agentHistory.push({role: "model", content: d.reply_text});
+
+    const isUrdu = (d.tts_script && /[\u0600-\u06FF]/.test(d.tts_script)) || d.voice_id.startsWith('ur-');
+    const autoSpeak = document.getElementById('auto-speak-toggle')?.checked;
+
+    const msgDiv=document.createElement('div');
+    msgDiv.className='msg bot';
+
+    let audioCardHtml = '';
+    if(d.has_audio && d.audio_url){
+      audioCardHtml = `
+        <div class="ai-result">
+          <div class="ai-script-label">🎙️ Spoken Voice Audio (${d.voice_name} · ${d.emotion_icon||'🎭'} ${d.emotion}):</div>
+          ${d.tts_script ? `<div class="${isUrdu ? 'ai-urdu-script' : 'ai-non-urdu-script'}">${escapeHtml(d.tts_script)}</div>` : ''}
+          <div class="ai-result-row">
+            <div class="ai-av" style="width:38px;height:38px;border-radius:50%;background:${vcBg({labels:{gender:d.gender}})};display:flex;align-items:center;justify-content:center;font-size:18px;">
+              ${d.voice_flag||'🎤'}
+            </div>
+            <div class="ai-voice-info">
+              <div class="ai-voice-name">${d.voice_name} · ${d.emotion_icon||''} ${d.emotion}</div>
+              <div class="ai-voice-meta">Voice: ${d.voice_id}</div>
+            </div>
+            <button class="ai-play" id="play-btn-${d.audio_id}" onclick="playAgentAudio('${d.audio_url}', this)">
+              ▶ Listen
+            </button>
+            <a href="${API}${d.audio_url}" download="agent_voice_${d.voice_id}.mp3" class="ai-play" style="text-decoration:none;background:var(--bg);border:1px solid var(--border);">
+              ⬇ MP3
+            </a>
+          </div>
+          <div class="ai-tags">
+            <span class="ai-tag ${d.used_gemini ? 'gemini' : ''}">${d.used_gemini ? '🧠 Gemini Conversational' : '⚡ Local AI'}</span>
+            <span class="ai-tag">${d.emotion_icon} ${d.emotion}</span>
+            <span class="ai-tag">👤 ${d.gender}</span>
+          </div>
+        </div>`;
+    }
+
+    msgDiv.innerHTML=`
+      <div class="msg-bubble" style="white-space:pre-line;">
+        ${escapeHtml(d.reply_text)}
+      </div>
+      ${audioCardHtml}
+      <div class="msg-time">AI Voice Agent • Just now</div>`;
+    document.getElementById('ai-msgs').appendChild(msgDiv);
+    scrollAI();
+
+    // Auto-play audio if enabled
+    if(autoSpeak && d.has_audio && d.audio_url){
+      const audio = new Audio(`${API}${d.audio_url}`);
+      audio.play().catch(e=>console.log("Auto-play prevented by browser policy:", e));
+      const pbtn = document.getElementById(`play-btn-${d.audio_id}`);
+      if(pbtn) pbtn.textContent = '🔊 Playing...';
+      audio.onended = () => { if(pbtn) pbtn.textContent = '▶ Listen'; };
+    }
+
+    await loadHist();
+  }catch(e){
+    document.getElementById(thinkId)?.remove();
+    addMsg('bot','❌ Error: Backend server connection issue. Make sure START_VOICESTUDIO.bat is running!');
+  }
+  aiLoading=false;
+  document.getElementById('ai-send').disabled=false;
+}
+
+let currentAgentAudio=null;
+function playAgentAudio(url, btn){
+  if(currentAgentAudio && !currentAgentAudio.paused){
+    currentAgentAudio.pause();
+    btn.textContent='▶ Listen';
+    return;
+  }
+  currentAgentAudio = new Audio(`${API}${url}`);
+  btn.textContent='⏸ Pause';
+  currentAgentAudio.play();
+  currentAgentAudio.onended=()=>{ btn.textContent='▶ Listen'; };
+}
+
+function addMsg(type, text, id=''){
+  const c=document.getElementById('ai-msgs');
+  const d=document.createElement('div');
+  d.className=`msg ${type}`; if(id) d.id=id;
+  d.innerHTML=`<div class="msg-bubble">${text}</div><div class="msg-time">${type==='user'?'You':'AI Director'} · Just now</div>`;
+  c.appendChild(d); scrollAI();
+}
+function scrollAI(){const c=document.getElementById('ai-msgs');c.scrollTop=c.scrollHeight;}
+
+function escapeHtml(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+function escapeForJs(s){return s.replace(/\\/g,'\\\\').replace(/`/g,'\\`').replace(/\$/g,'\\$');}
+
+function toast(msg,type='info'){
+  const c=document.getElementById('toasts');
+  const t=document.createElement('div');t.className=`toast ${type}`;t.innerHTML=`<span>${msg}</span>`;c.appendChild(t);
+  setTimeout(()=>{t.style.opacity='0';t.style.transform='translateX(100%)';t.style.transition='all .3s';setTimeout(()=>t.remove(),300);},3000);
+}
+
+init();
+</script>
+</body>
+</html>
